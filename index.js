@@ -60,6 +60,34 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
+async function run() {
+  try {
+    const db = client.db("sportnest");
+    const facilityCollection = db.collection("facilities");
+    const bookingCollection = db.collection("bookings");
+    app.post("/auth/set-cookie", (req, res) => {
+      const { token } = req.body;
+      if (!token) {
+        return res.status(400).json({ message: "Token required" });
+      }
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.json({ message: "Cookie set successfully" });
+    });
+    app.post("/auth/clear-cookie", (req, res) => {
+      res.clearCookie("auth_token");
+      res.json({ message: "Cookie cleared" });
+    });
+    console.log("Connected to MongoDB!");
+  } finally {
+  }
+}
+
+run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("SportNest server is running...");
