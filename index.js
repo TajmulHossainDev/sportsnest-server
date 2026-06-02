@@ -137,6 +137,37 @@ async function run() {
       });
       res.json(result);
     });
+        app.post("/bookings", verifyToken, async (req, res) => {
+      const bookingData = req.body;
+      const result = await bookingCollection.insertOne({
+        ...bookingData,
+        status: "pending",
+      });
+      res.json(result);
+    });
+    app.get("/bookings", verifyToken, async (req, res) => {
+      const { email } = req.query;
+      const result = await bookingCollection
+        .find({ user_email: email })
+        .toArray();
+      res.json(result);
+    });
+    app.patch("/bookings/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const result = await bookingCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: "cancelled" } },
+      );
+      res.json(result);
+    });
+    app.delete("/bookings/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const result = await bookingCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.json(result);
+    });
+
     console.log("Connected to MongoDB!");
   } finally {
   }
