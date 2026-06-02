@@ -82,6 +82,33 @@ async function run() {
       res.clearCookie("auth_token");
       res.json({ message: "Cookie cleared" });
     });
+        app.get("/featured", async (req, res) => {
+      const result = await facilityCollection.find().limit(6).toArray();
+      res.json(result);
+    });
+    app.get("/facilities", async (req, res) => {
+      const { search, type } = req.query;
+
+      const query = {};
+
+      if (search) {
+        query.name = { $regex: search, $options: "i" };
+      }
+
+      if (type && type !== "all") {
+        query.facility_type = { $in: [type] };
+      }
+
+      const result = await facilityCollection.find(query).toArray();
+      res.json(result);
+    });
+    app.get("/facilities/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await facilityCollection.findOne({
+        _id: new ObjectId(id),
+      });
+      res.json(result);
+    });
     console.log("Connected to MongoDB!");
   } finally {
   }
