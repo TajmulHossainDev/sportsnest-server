@@ -109,6 +109,34 @@ async function run() {
       });
       res.json(result);
     });
+        app.post("/facilities", verifyToken, async (req, res) => {
+      const facilityData = req.body;
+      const result = await facilityCollection.insertOne(facilityData);
+      res.json(result);
+    });
+    app.get("/my-facilities", verifyToken, async (req, res) => {
+      const { email } = req.query;
+      const result = await facilityCollection
+        .find({ owner_email: email })
+        .toArray();
+      res.json(result);
+    });
+    app.patch("/facilities/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const updateData = req.body;
+      const result = await facilityCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updateData },
+      );
+      res.json(result);
+    });
+    app.delete("/facilities/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const result = await facilityCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      res.json(result);
+    });
     console.log("Connected to MongoDB!");
   } finally {
   }
